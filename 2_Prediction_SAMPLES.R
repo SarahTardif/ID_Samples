@@ -49,13 +49,14 @@ dir_list <- list.files(here(getwd()),
 ## Nomme le vecteur avec seulement le nom de fichier, sans l'extension
 names(dir_list) <- path_ext_remove(list.files(here(getwd()),
                        pattern = "^ID.*\\.csv$", full.names = TRUE))
+names(dir_list) <-path_ext_remove(basename(dir_list))
 
 files_df <- map_dfr(dir_list, read_csv, .id = "Sample_Name") ## combine tous les fichiers csv en un, ajoute une colonne Sample_name avec le nom de l'échantillon
 files_df<-table(files_df)
 rownames(files_df) = gsub(" ", "_", rownames(files_df))
 rownames(files_df) = gsub("ID_", "", rownames(files_df))
 
-write.csv(files_df, "./ID_CY_all.csv", row.names = T)
+write.csv(files_df, "./ID_2023_2140_CY.csv", row.names = T)
 
 
 ##reste à ajouter nom premiere colonne / changer nom des lignes pour enlever le ID et _ 
