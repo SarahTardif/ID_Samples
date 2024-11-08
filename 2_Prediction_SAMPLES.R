@@ -12,7 +12,7 @@ library(randomForest)
 model<-readRDS("./modelRF_species_20240925.rds")
 
 ## charger les  données à classifier
-setwd("./2023_samples_W1-W4/2023_samples_W1-W4_CSV")
+setwd("./test")
 PrimaryDirectory<-getwd() #verifier d'etre dans le bon repertoire avant
 ## Récupère les noms des fichiers à identifier dans le répertoire de travail
 FileNames <- list.files(path=PrimaryDirectory, pattern = ".csv")     # fichier csv dans une liste
@@ -26,7 +26,7 @@ x <- Sys.time()
 x <- gsub(":", "-", x)
 x <- gsub(" ", "_", x)
 
-newdir <- "../2023_samples_W1-W4_ID" # peut être remplacé par newdir<-"FolderName"
+newdir <- "../test/test_ID" # peut être remplacé par newdir<-"FolderName"
 dir.create(paste0(newdir), showWarnings = FALSE)
 
 
@@ -37,10 +37,21 @@ for(File in FileNames){
   completerecords <- na.omit(brutfile) 
   completerecords2 <-  completerecords %>% 
     filter_if(~is.numeric(.), all_vars(!is.infinite(.))) # checking only numeric columns:
-  pred<-predict(model, completerecords2)
-  completerecords2$Class_pred<-pred
-  write.csv(pred, file.path("C:/Users/sarah/OneDrive - UQAM/PhD/GitHub/ID_Samples/2023_samples_W1-W4/2023_samples_W1-W4_ID", paste0("ID_",File)), row.names = FALSE)
+  pred<-predict(model, completerecords2, type="prob")
+  species_max <- apply(pred, 1, function(row) names(pred)[which.max(row)])
+  value_max <- apply(pred, 1, function(row) max(row))
+  predict <- data.frame(species = species_max, prob = value_max)
+  write.csv(predict, file.path("C:/Users/sarah/OneDrive - UQAM/PhD/GitHub/ID_Samples/test/test_ID", paste0("ID_",File)), row.names = FALSE)
 }
+
+##### EN DEVELOPPEMENT #####
+## prendre uniquement les pollens avec prob classification >0.9
+# Modifier le nom de l'espèce pour les lignes où prob est inférieur à 0.90
+data<-read.csv("./test_ID/ID_CY 21.csv")
+data$species[data$prob < 0.60] <- "NI"
+# Compter l'occurrence de chaque espèce
+data <- table(data$species)
+##### EN DEVELOPPEMENT #####
 
 ## créer un fichier avec tous les échantillons identifiés (ID)
 ## pour combiner tous les nouveaux fichiers .csv en un seul :
@@ -70,5 +81,3 @@ rownames(files_df) = gsub("ID_", "", rownames(files_df))
 write.csv(files_df, "../../ID_2023_W1-W4.csv", row.names = T)
 
 
-##reste à ajouter nom premiere colonne / changer nom des lignes pour enlever le ID et _ 
-## essayer de remplacer le x dans les fichiers de chaque echantillon par Class ou genre ou whatever
