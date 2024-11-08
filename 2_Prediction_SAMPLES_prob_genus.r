@@ -23,18 +23,19 @@ for(File in FileNames){
   genus_max <- apply(data_genus, 1, function(row) names(data_genus)[which.max(row)])
   prob_max <- apply(data_genus, 1, function(row) max(row))
   data_genus1 <- data.frame(genus = genus_max, prob = prob_max)
-  data_genus1$genus[data_genus1$prob < 0.75] <- "NI"
+  data_genus1 <- data_genus1[data_genus1$genus != "Debris", ]
+  data_genus1$genus[data_genus1$prob < 0.90] <- "NI"
 # Compter l'occurrence de chaque espèce
   datafin <- as.data.frame(table(data_genus1$genus))
   df_pivoted <- datafin %>% pivot_wider(names_from = Var1, values_from = Freq)
   all_data_genus[[File]] <- df_pivoted
 }
 #
-all_data_genus1 <- bind_rows(all_data_genus, .id = "sample")
+all_data_genus1 <- bind_rows(all_data_genus, .id = "Sample")
 all_data_genus1[is.na(all_data_genus1)] <- 0
 all_data_genus1<-as.data.frame(all_data_genus1)
-all_data_genus1$sample <- gsub("ID_|\\.csv", "", all_data_genus1$sample)
+all_data_genus1$Sample <- gsub("ID_|\\.csv", "", all_data_genus1$Sample)
 
 
 # Enregistrer le fichier final
-write.csv(all_data_genus1, "C:/Users/sarah/OneDrive - UQAM/PhD/GitHub/ID_Samples/data_genus_21-40_prob75.csv", row.names = FALSE)
+write.csv(all_data_genus1, "C:/Users/sarah/OneDrive - UQAM/PhD/GitHub/ID_Samples/data_genus_21-40_prob90.csv", row.names = FALSE)
