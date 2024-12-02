@@ -9,10 +9,10 @@ library(randomForest)
 ## charger les paquets nécessaires pour le  modèle choisi
 
 ## charger le modèle retenu
-model<-readRDS("./modelRF_species_20240925.rds")
+model<-readRDS("./modelRF_species_wodebris_20241128.rds")
 
 ## charger les  données à classifier
-setwd("./test")
+setwd("./Ech_21-40")
 PrimaryDirectory<-getwd() #verifier d'etre dans le bon repertoire avant
 ## Récupère les noms des fichiers à identifier dans le répertoire de travail
 FileNames <- list.files(path=PrimaryDirectory, pattern = ".csv")     # fichier csv dans une liste
@@ -26,9 +26,9 @@ x <- Sys.time()
 x <- gsub(":", "-", x)
 x <- gsub(" ", "_", x)
 
-newdir <- "../test/test_ID" # peut être remplacé par newdir<-"FolderName"
+newdir <- "../Ech21_40" # peut être remplacé par newdir<-"FolderName"
 dir.create(paste0(newdir), showWarnings = FALSE)
-
+getwd<-newdir
 
 for(File in FileNames){
   brutfile<-read.csv(File, head=T)
@@ -38,10 +38,10 @@ for(File in FileNames){
   completerecords2 <-  completerecords %>% 
     filter_if(~is.numeric(.), all_vars(!is.infinite(.))) # checking only numeric columns:
   pred<-predict(model, completerecords2, type="prob")
-  species_max <- apply(pred, 1, function(row) names(pred)[which.max(row)])
-  value_max <- apply(pred, 1, function(row) max(row))
-  predict <- data.frame(species = species_max, prob = value_max)
-  write.csv(predict, file.path("C:/Users/sarah/OneDrive - UQAM/PhD/GitHub/ID_Samples/test/test_ID", paste0("ID_",File)), row.names = FALSE)
+  #species_max <- apply(pred, 1, function(row) names(pred)[which.max(row)])
+  #value_max <- apply(pred, 1, function(row) max(row))
+  #predict <- data.frame(species = species_max, prob = value_max)
+  write.csv(pred, file.path("C:/Users/sarah/OneDrive - UQAM/PhD/GitHub/ID_Samples/Ech_21-40/Ech_21-40_wodebris_ID", paste0("ID_",File)), row.names = FALSE)
 }
 
 ##### EN DEVELOPPEMENT #####
@@ -73,11 +73,12 @@ names(dir_list) <- path_ext_remove(list.files(here(getwd()),
                        pattern = "^ID.*\\.csv$", full.names = TRUE))
 names(dir_list) <-path_ext_remove(basename(dir_list))
 
-files_df <- map_dfr(dir_list, read_csv, .id = "Sample_Name") ## combine tous les fichiers csv en un, ajoute une colonne Sample_name avec le nom de l'échantillon
+files_df <- map_dfr(dir_list, read_csv, .id = "Sample") ## combine tous les fichiers csv en un, ajoute une colonne Sample_name avec le nom de l'échantillon
 files_df<-table(files_df)
+files_df<-as.data.frame(files_df)
 rownames(files_df) = gsub(" ", "_", rownames(files_df))
 rownames(files_df) = gsub("ID_", "", rownames(files_df))
 
-write.csv(files_df, "../../ID_2023_W1-W4.csv", row.names = T)
+write.csv(files_df, "../../ID_Ech2140_wodebris.csv", row.names = T)
 
 
