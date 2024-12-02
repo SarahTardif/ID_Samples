@@ -79,6 +79,6 @@ files_df<-as.data.frame(files_df)
 rownames(files_df) = gsub(" ", "_", rownames(files_df))
 rownames(files_df) = gsub("ID_", "", rownames(files_df))
 
-write.csv(files_df, "../../ID_Ech2140_wodebris.csv", row.names = T)
+write.csv(files_df, "../../ID_Ech2140_wodebris.csv", row.names = F)
 
 
