@@ -32,6 +32,7 @@ getwd<-newdir
 
 for(File in FileNames){
   brutfile<-read.csv(File, head=T)
+  brutfile <- brutfile[, !names(brutfile) %in% c("Time","SampleID")]
   ## mise en forme des données
   ## nettoyage, pour supprimer les lignes sans valeurs (inf, NA)
   completerecords <- na.omit(brutfile) 
