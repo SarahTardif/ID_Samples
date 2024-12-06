@@ -32,7 +32,7 @@ getwd<-newdir
 
 for(File in FileNames){
   brutfile<-read.csv(File, head=T)
-  brutfile <- brutfile[, !names(brutfile) %in% c("Time","SampleID")]
+  brutfile <- brutfile[, !names(brutfile) %in% c("Time","SampleID","FSC_H","FSC_A","FSC_Width","SSC_H","SSC_A")]
   ## mise en forme des données
   ## nettoyage, pour supprimer les lignes sans valeurs (inf, NA)
   completerecords <- na.omit(brutfile) 
@@ -42,7 +42,7 @@ for(File in FileNames){
   #species_max <- apply(pred, 1, function(row) names(pred)[which.max(row)])
   #value_max <- apply(pred, 1, function(row) max(row))
   #predict <- data.frame(species = species_max, prob = value_max)
-  write.csv(pred, file.path("C:/Users/sarah/OneDrive - UQAM/PhD/GitHub/ID_Samples/Ech_21-40/Ech_21-40_wodebris_ID", paste0("ID_",File)), row.names = FALSE)
+  write.csv(pred, file.path("C:/Users/sarah/OneDrive - UQAM/PhD/GitHub/ID_Samples/Ech_21-40/Ech_21-40_wotaille_ID", paste0("ID_",File)), row.names = FALSE)
 }
 
 ##### EN DEVELOPPEMENT #####
