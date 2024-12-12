@@ -9,7 +9,7 @@ library(randomForest)
 ## charger les paquets nécessaires pour le  modèle choisi
 
 ## charger le modèle retenu
-model<-readRDS("./modelRF_species_wodebris_20241128.rds")
+model<-readRDS("./modelRF_species_balanced_20241212.rds")
 
 ## charger les  données à classifier
 setwd("./Ech_21-40")
@@ -32,7 +32,7 @@ getwd<-newdir
 
 for(File in FileNames){
   brutfile<-read.csv(File, head=T)
-  brutfile <- brutfile[, !names(brutfile) %in% c("Time","SampleID","FSC_H","FSC_A","FSC_Width","SSC_H","SSC_A")]
+  brutfile <- brutfile[, !names(brutfile) %in% c("Time","SampleID")]#"FSC_H","FSC_A","FSC_Width","SSC_H","SSC_A")]
   ## mise en forme des données
   ## nettoyage, pour supprimer les lignes sans valeurs (inf, NA)
   completerecords <- na.omit(brutfile) 
@@ -42,7 +42,7 @@ for(File in FileNames){
   #species_max <- apply(pred, 1, function(row) names(pred)[which.max(row)])
   #value_max <- apply(pred, 1, function(row) max(row))
   #predict <- data.frame(species = species_max, prob = value_max)
-  write.csv(pred, file.path("C:/Users/sarah/OneDrive - UQAM/PhD/GitHub/ID_Samples/Ech_21-40/Ech_21-40_wotaille_ID", paste0("ID_",File)), row.names = FALSE)
+  write.csv(pred, file.path("C:/Users/sarah/OneDrive - UQAM/PhD/GitHub/ID_Samples/Ech_21-40/Ech_21-40_balanced_ID", paste0("ID_",File)), row.names = FALSE)
 }
 
 ##### EN DEVELOPPEMENT #####
@@ -80,6 +80,6 @@ files_df<-as.data.frame(files_df)
 rownames(files_df) = gsub(" ", "_", rownames(files_df))
 rownames(files_df) = gsub("ID_", "", rownames(files_df))
 
-write.csv(files_df, "../../ID_Ech2140_wodebris.csv", row.names = F)
+write.csv(files_df, "../../ID_Ech2140_wbalanced.csv", row.names = F)
 
 
