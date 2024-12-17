@@ -9,7 +9,7 @@ library(randomForest)
 ## charger les paquets nécessaires pour le  modèle choisi
 
 ## charger le modèle retenu
-model<-readRDS("./modelRF_species_balanced_20241212.rds")
+model<-readRDS("./modelRF_species_balanced_20241216.rds")
 
 ## charger les  données à classifier
 setwd("./Ech_21-40")
@@ -80,6 +80,6 @@ files_df<-as.data.frame(files_df)
 rownames(files_df) = gsub(" ", "_", rownames(files_df))
 rownames(files_df) = gsub("ID_", "", rownames(files_df))
 
-write.csv(files_df, "../../ID_Ech2140_wbalanced.csv", row.names = F)
+write.csv(files_df, "../../ID_Ech2140_balanced.csv", row.names = F)
 
 
