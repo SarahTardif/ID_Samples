@@ -9,7 +9,7 @@ library(randomForest)
 ## charger les paquets nécessaires pour le  modèle choisi
 
 ## charger le modèle retenu
-model<-readRDS("./modelRF_species_balanced_20241216.rds")
+model<-readRDS("./modelRF_species_balanced_20250106.rds")
 
 ## charger les  données à classifier
 setwd("./Ech_21-40")
