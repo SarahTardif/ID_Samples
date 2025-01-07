@@ -5,11 +5,14 @@ ID_2023_W1-W4.csv
 ID_Ech2140_wodebris.csv
 ID_Ech2140_genus_wodebris.csv
 ID_Ech2140_balanced.csv
+ID_Ech2140_balanced_wotaille.csv
 modelRF_species_20240925.rds
 modelRF_species_wodebris_20241128.rds
 modelRF_genus_wodebris_20241204.rds
 modelRF_species_balanced_20241212.rds
 modelRF_species_balanced_20241216.rds
+modelRF_species_balanced_20250106.rds
+modelRF_species_balanced_wotaille_20241216.rds
 2021_samples_W1-W4/
 2022_samples_W1-W4/
 2023_samples_W1-W4/
