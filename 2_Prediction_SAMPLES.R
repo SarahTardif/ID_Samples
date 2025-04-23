@@ -1,85 +1,92 @@
-## script pour prédire la classe de nouvelles données
-## pour toutes questions, contacter Gauthier Lapa, gauthier.lapa@gmail.com
-## version du 2023-04-03
+## script to predict class of new data
 
-
+## load packages and libraries
 library(dplyr)
+library(tidyr)
+library(readr)
+library(here)
+library(purrr)
+library(fs)
+library(tibble)
 #install.packages("randomForest")
 library(randomForest)
-## charger les paquets nécessaires pour le  modèle choisi
 
-## charger le modèle retenu
-model<-readRDS("./modelRF_species_balanced_essentials_20250110.rds")
+## load the chosen model
+model<-readRDS("./modelRF_genus_balanced_20250110.rds")
 
-## charger les  données à classifier
-setwd("./Ech_21-40")
-PrimaryDirectory<-getwd() #verifier d'etre dans le bon repertoire avant
-## Récupère les noms des fichiers à identifier dans le répertoire de travail
-FileNames <- list.files(path=PrimaryDirectory, pattern = ".csv")     # fichier csv dans une liste
-as.matrix(FileNames) # en matrice
+## load data to classify
+setwd("./Maya_data")
+PrimaryDirectory<-getwd() # make sure to be in the right directory first
+## Retrieves the names of the files to be identified in the working directory
+FileNames <- list.files(path=PrimaryDirectory, pattern = ".csv")     # csv file in a list
+as.matrix(FileNames) # in matrix
 
 
-## identifier les pollens dans tous les échantillons (fichiers csv) du répertoire en question et les stocker dans nouveau répertoire
-#créer un nouveau répertoire
-# pour créer un sous dossier pour les fichier csv, nom au format "Output_FCS-to-CSV %Y-%m-%d-%H:%M:%S"
-x <- Sys.time()
-x <- gsub(":", "-", x)
-x <- gsub(" ", "_", x)
-
-newdir <- "../Ech21_40" # peut être remplacé par newdir<-"FolderName"
-dir.create(paste0(newdir), showWarnings = FALSE)
-getwd<-newdir
+## identify pollen grains in all samples (csv files) in the chosen directory and store them in the new directory
 
 for(File in FileNames){
   brutfile<-read.csv(File, head=T)
   brutfile <- brutfile[, !names(brutfile) %in% c("Time","SampleID")]#"FSC_H","FSC_A","FSC_Width","SSC_H","SSC_A")]
-  ## mise en forme des données
-  ## nettoyage, pour supprimer les lignes sans valeurs (inf, NA)
+  ## data formatting
+  ## cleaning to remove all lines with no data (inf, NA)
   completerecords <- na.omit(brutfile) 
   completerecords2 <-  completerecords %>% 
     filter_if(~is.numeric(.), all_vars(!is.infinite(.))) # checking only numeric columns:
   pred<-predict(model, completerecords2, type="prob")
-  #species_max <- apply(pred, 1, function(row) names(pred)[which.max(row)])
-  #value_max <- apply(pred, 1, function(row) max(row))
-  #predict <- data.frame(species = species_max, prob = value_max)
-  write.csv(pred, file.path("C:/Users/sarah/OneDrive - UQAM/PhD/GitHub/ID_Samples/Ech_21-40/Ech_21-40_essentials_ID", paste0("ID_",File)), row.names = FALSE)
+  species_max <- apply(pred, 1, function(row) names(pred)[which.max(row)])
+  value_max <- apply(pred, 1, function(row) max(row))
+  predict <- data.frame(species = species_max, prob = value_max)
+  write.csv(predict, file.path("C:/Users/sarah/OneDrive - UQAM/PhD/GitHub/ID_Samples/Maya_data/Maya_data_ID", paste0("ID_",File)), row.names = FALSE)
 }
 
-##### EN DEVELOPPEMENT #####
-## prendre uniquement les pollens avec prob classification >0.9
-# Modifier le nom de l'espèce pour les lignes où prob est inférieur à 0.90
-data<-read.csv("./test_ID/ID_CY 21.csv")
-data$species[data$prob < 0.60] <- "NI"
-# Compter l'occurrence de chaque espèce
-data <- table(data$species)
-##### EN DEVELOPPEMENT #####
-
-## créer un fichier avec tous les échantillons identifiés (ID)
-## pour combiner tous les nouveaux fichiers .csv en un seul :
-library(dplyr)
-library(here)
-library(readr)
-library(purrr)
-library(fs)
-
-rm(list=ls())
-
-## Crée un vecteur des noms de fichiers, avec tout le chemin d'accès
-##vérifier qu'on est dans le bon repertoire
+## create a file with all identified samples (ID)
+setwd("./Maya_data_ID")
+## Create a vector of filenames, with all paths
+## check to be in the right directory
 dir_list <- list.files(here(getwd()),
                        pattern = "^ID.*\\.csv$", full.names = TRUE)
 
-## Nomme le vecteur avec seulement le nom de fichier, sans l'extension
+## Names vector with file name only, no extension
 names(dir_list) <- path_ext_remove(list.files(here(getwd()),
                        pattern = "^ID.*\\.csv$", full.names = TRUE))
 names(dir_list) <-path_ext_remove(basename(dir_list))
 
-files_df <- map_dfr(dir_list, read_csv, .id = "Sample") ## combine tous les fichiers csv en un, ajoute une colonne Sample_name avec le nom de l'échantillon
-files_df<-table(files_df)
-files_df<-as.data.frame(files_df)
-rownames(files_df) = gsub(" ", "_", rownames(files_df))
-rownames(files_df) = gsub("ID_", "", rownames(files_df))
+ID_all <- map_dfr(dir_list, read_csv, .id = "Sample") ## combines all csv files into one, adds Sample_name column with sample name
+ID_all <-as.data.frame(ID_all)
+rownames(ID_all) = gsub(" ", "_", rownames(ID_all))
+rownames(ID_all) = gsub("ID_", "", rownames(ID_all))
 
-write.csv(files_df, "../../ID_Ech2140_balanced_essentials.csv", row.names = F)
+#write.csv(ID_all, "../../ID_test_all.csv", row.names = F)
 
 
+## keep pollen grains only if the classification probability is superior or equal to the threshold value for the taxon
+
+## data cleaning to have the same taxa for ID_all and Valseuil
+ID_all$species <- ifelse(ID_all$species == "Malus"|ID_all$species =="Prunus"|ID_all$species =="Pyrus"|ID_all$species =="Sorbus"|ID_all$species =="Amelanchier", "Rosaceae", ID_all$species)
+ID_all$species <- ifelse(ID_all$species == "Juniperus", "Cupressaceae", ID_all$species)
+ID_all$species <- ifelse(ID_all$species == "Pinus"|ID_all$species =="Picea", "Pinaceae", ID_all$species)
+ID_all$species <- ifelse(ID_all$species == "Corylus"|ID_all$species =="Ostrya", "Corylus.Ostrya", ID_all$species)
+ID_all$species <- ifelse(ID_all$species == "Carpinus"|ID_all$species =="Celtis"|ID_all$species =="Robinia", "NI.Others", ID_all$species)
+
+valseuil<-read.csv("../../valseuil.csv", sep=",", h=T)
+valseuil <- pivot_longer(valseuil, cols=everything(),names_to = "taxon", values_to = "probaseuil")
+ID_all_final<-data.frame()
+for(taxon in unique(ID_all$species)){
+  datataxon<-ID_all[ID_all$species==taxon,]
+  proba <- valseuil[valseuil$taxon == taxon, "probaseuil"][[1]]
+  if(proba>0){
+    datataxon<-datataxon[datataxon$prob >= proba, ]
+    ID_all_final<- rbind(ID_all_final,datataxon)
+  }
+  else {
+    datataxon<-datataxon[datataxon$prob >= 0, ]
+    ID_all_final<- rbind(ID_all_final,datataxon)
+  }
+}
+ID_all_final <- ID_all_final[, -which(names(ID_all_final) %in% c("prob"))]
+ID_all_final<-table(ID_all_final$Sample, ID_all_final$species)
+ID_all_final<-as.data.frame.matrix(ID_all_final)
+ID_all_final$TOTAL<-rowSums(ID_all_final)
+ID_all_final<-rownames_to_column(ID_all_final, var = "Sample")
+
+write.csv(ID_all_final, "../../ID_Maya_data_all.csv", row.names = F)

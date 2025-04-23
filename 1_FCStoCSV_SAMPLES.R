@@ -1,38 +1,35 @@
-## Script pour convertir les fichiers FCS du cytomètre en fichier CSV
-## adapté du scipt de Thomas Ashhurst
+## Script to convert FCS file (cytometer format) into CSV
+## adapted from Thomas Ashhurst's script
 ## https://github.com/sydneycytometry/CSV-to-FCS/blob/master/FCS-to-CSV%20v2.0.R
-## pour toutes questions, contacter Gauthier Lapa, gauthier.lapa@gmail.com
-## version du 2023-04-03
 
 #####
-## Certains paquets nécessitent l'istallation de BiocManager, les installer ainsi :
+## Some packages need BiocManager, see below for installation :
 #install.packages("BiocManager")
 #BiocManager::install("flowCore") 
 #BiocManager::install("Biobase")
 
-
-# Charger les paquets 
+## load packages and libraries
 library('flowCore')
 library('Biobase')
 library('data.table')
 
-# Choisir le répertoire de travail
-setwd("./2023_samples_W1-W4") # /!/ vérifier que les fichiers (échantillons) ont le bon nom, les renommer dès maintenant si besoin
-getwd() ## check
+## set working directory
+setwd("./2023_samples_W1-W4") # /!/ check that files (samples) have the right name, rename them now if necessary
+getwd() # check
 PrimaryDirectory <- getwd()
-PrimaryDirectory ## re check
+PrimaryDirectory # re check
 
-## Récupère les noms des fichiers .fcs dans le répertoire de travail
-FileNames <- list.files(path=PrimaryDirectory, pattern = ".fcs")     # fichier fsc dans une liste
-as.matrix(FileNames) # en matrice
+## Retrieves .fcs file names from the working directory
+FileNames <- list.files(path=PrimaryDirectory, pattern = ".fcs")     # fsc files in a list
+as.matrix(FileNames) # in matrix
 
-## lire des données des fichiers dans un dataframe
-DataList=list() # crée une liste vide
+## read data from files in a dataframe
+DataList=list() # create an empty list
 
-for (File in FileNames) { # boucle pour lire les fichiers dans la liste
+for (File in FileNames) { # loop to read files in the list
   fcsfile <- read.FCS(File, transformation = FALSE,truncate_max_range = FALSE)
   tempdata <- exprs(fcsfile)
-  colnames(tempdata)<-fcsfile@parameters@data$desc ## récupère les noms des variables
+  colnames(tempdata)<-fcsfile@parameters@data$desc ## retrieves variables names
   tempdata <- tempdata[1:nrow(tempdata),1:ncol(tempdata)]
   File <- gsub(".fcs", "", File)
   DataList[[File]] <- tempdata
@@ -41,31 +38,30 @@ rm(tempdata)
 rm(fcsfile)
 AllSampleNames <- names(DataList)
 
-## Check les données
+## Check data
 #head(DataList)
 
 
 
 ##### END USER INPUT #####
-# pour créer un sous dossier pour les fichier csv, nom au format "Output_FCS-to-CSV %Y-%m-%d-%H:%M:%S"
+# to create a subfolder for csv files, name in the format “Output_FCS-to-CSV %Y-%m-%d-%H:%M:%S”
 x <- Sys.time()
 x <- gsub(":", "-", x)
 x <- gsub(" ", "_", x)
 
-newdir <- "./2023_samples_W1-W4_CSV" # peut être remplacé par newdir<-"FolderName"
+newdir <- "./2023_samples_W1-W4_CSV" 
 
 setwd(PrimaryDirectory)
-dir.create(paste0(newdir), showWarnings = FALSE) #  crée un sous dossier, avec le nom de newdir
+dir.create(paste0(newdir), showWarnings = FALSE) # creates a subfolder with the name newdir
 setwd(newdir)
 
-# pour extraire les fichiers dans un dossier existant, utiliser : setwd("/an/existing/folder/")
-# dans tous les cas, faire attention de ne pas écraser des fichiers préexistants
+# take care not to overwrite pre-existing files
 for(i in c(1:length(AllSampleNames))){
   data_subset <- DataList[i][[1]]
   data_subset <- as.data.frame(data_subset)
-  colnames(data_subset) = gsub("-", "_", colnames(data_subset)) ## remplace - par _ dans le nom des colonnes (parce que R n'aime pas les -)
+  colnames(data_subset) = gsub("-", "_", colnames(data_subset)) ## replaces - with _ in column names (because R doesn't like -)
   a <- names(DataList)[i]
-  data_subset$SampleID <- seq.int(nrow(data_subset)) ## ajout le nom de l'échantillon comme ID
+  data_subset$SampleID <- seq.int(nrow(data_subset)) ## add sample name as ID
   write.csv(data_subset, paste0(a, ".csv"), row.names = FALSE)
 }
 
