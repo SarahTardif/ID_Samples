@@ -15,7 +15,7 @@ library(randomForest)
 model<-readRDS("./modelRF_genus_balanced_20250110.rds")
 
 ## load data to classify
-setwd("./Maya_data")
+setwd("./2023_samples_newcy/2023_samples_newcy_CSV_correct")
 PrimaryDirectory<-getwd() # make sure to be in the right directory first
 ## Retrieves the names of the files to be identified in the working directory
 FileNames <- list.files(path=PrimaryDirectory, pattern = ".csv")     # csv file in a list
@@ -36,11 +36,11 @@ for(File in FileNames){
   species_max <- apply(pred, 1, function(row) names(pred)[which.max(row)])
   value_max <- apply(pred, 1, function(row) max(row))
   predict <- data.frame(species = species_max, prob = value_max)
-  write.csv(predict, file.path("C:/Users/sarah/OneDrive - UQAM/PhD/GitHub/ID_Samples/Maya_data/Maya_data_ID", paste0("ID_",File)), row.names = FALSE)
+  write.csv(predict, file.path("C:/Users/sarah/OneDrive - UQAM/PhD/GitHub/ID_Samples/2023_samples_newcy/2023_samples_newcy_ID", paste0("ID_",File)), row.names = FALSE)
 }
 
 ## create a file with all identified samples (ID)
-setwd("./Maya_data_ID")
+setwd("C:/Users/sarah/OneDrive - UQAM/PhD/GitHub/ID_Samples/2023_samples_newcy/2023_samples_newcy_ID")
 ## Create a vector of filenames, with all paths
 ## check to be in the right directory
 dir_list <- list.files(here(getwd()),
@@ -54,9 +54,9 @@ names(dir_list) <-path_ext_remove(basename(dir_list))
 ID_all <- map_dfr(dir_list, read_csv, .id = "Sample") ## combines all csv files into one, adds Sample_name column with sample name
 ID_all <-as.data.frame(ID_all)
 rownames(ID_all) = gsub(" ", "_", rownames(ID_all))
-rownames(ID_all) = gsub("ID_", "", rownames(ID_all))
+rownames(ID_all) = gsub("ID_correct_", "", rownames(ID_all))
 
-#write.csv(ID_all, "../../ID_test_all.csv", row.names = F)
+#write.csv(ID_all, "../../ID_2023_oldcy_all.csv", row.names = F)
 
 
 ## keep pollen grains only if the classification probability is superior or equal to the threshold value for the taxon
@@ -89,4 +89,4 @@ ID_all_final<-as.data.frame.matrix(ID_all_final)
 ID_all_final$TOTAL<-rowSums(ID_all_final)
 ID_all_final<-rownames_to_column(ID_all_final, var = "Sample")
 
-write.csv(ID_all_final, "../../ID_Maya_data_all.csv", row.names = F)
+write.csv(ID_all_final, "../../ID_2023_newcy_all.csv", row.names = F)

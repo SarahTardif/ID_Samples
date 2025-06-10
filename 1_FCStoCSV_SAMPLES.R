@@ -14,7 +14,7 @@ library('Biobase')
 library('data.table')
 
 ## set working directory
-setwd("./2023_samples_W1-W4") # /!/ check that files (samples) have the right name, rename them now if necessary
+setwd("./2023_samples_newcy") # /!/ check that files (samples) have the right name, rename them now if necessary
 getwd() # check
 PrimaryDirectory <- getwd()
 PrimaryDirectory # re check
@@ -49,7 +49,7 @@ x <- Sys.time()
 x <- gsub(":", "-", x)
 x <- gsub(" ", "_", x)
 
-newdir <- "./2023_samples_W1-W4_CSV" 
+newdir <- "./2023_samples_newcy_CSV" 
 
 setwd(PrimaryDirectory)
 dir.create(paste0(newdir), showWarnings = FALSE) # creates a subfolder with the name newdir
