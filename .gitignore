@@ -1,7 +1,5 @@
-
-ID_2021_W1-W4.csv
-ID_2022_W1-W4.csv
-ID_2023_W1-W4.csv
+ID_2023_newcy_all.csv
+ID_2023_oldcy_all.csv
 ID_Ech2140_wodebris.csv
 ID_Ech2140_genus_wodebris.csv
 ID_Ech2140_balanced.csv
@@ -21,9 +19,8 @@ modelRF_species_balanced_essentials_20250110.rds
 modelRF_species_balanced_wotaille_20241216.rds
 modelRF_species_balanced_wotaille_20250106.rds
 modelRF_species_balanced_wotaille_20250110.rds
-2021_samples_W1-W4/
-2022_samples_W1-W4/
-2023_samples_W1-W4/
+2023_samples_oldcy/
+2023_samples_newcy/
 Ech_21-40/
 Maya_data/
 valseuil.csv
